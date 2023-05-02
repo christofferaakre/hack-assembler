@@ -14,11 +14,6 @@ pub fn decode_instructions(code: &str) -> Result<Vec<Instruction>> {
 }
 
 pub fn decode_instruction(line: &str) -> Result<Instruction> {
-    // Handle comments
-    if line.starts_with("//") {
-        return Ok(Instruction::Comment);
-    }
-
     // Handle A instruction: @xxx
     if line.starts_with('@') {
         // skip the @
@@ -75,6 +70,11 @@ pub fn decode_instruction(line: &str) -> Result<Instruction> {
 pub fn clean_line(line: &str) -> Option<String> {
     // return None if empty line
     if line.is_empty() {
+        return None;
+    }
+
+    // return None if starts with //
+    if line.starts_with("//") {
         return None;
     }
 

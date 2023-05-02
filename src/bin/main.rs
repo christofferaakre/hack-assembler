@@ -1,7 +1,7 @@
 use clap::Parser as ClapParser;
 use hack_assembler::{
     instruction::Instruction,
-    parser::{clean_line, decode_instruction},
+    parser::{clean_line, decode_instruction, decode_instructions},
 };
 use std::{path::PathBuf, process::ExitCode};
 
@@ -18,18 +18,9 @@ fn main() -> Result<ExitCode> {
     let file_contents = std::fs::read_to_string(args.program)?;
     let lines = file_contents.lines();
 
-    let mut line_number = 0;
-    for line in lines {
-        let line = clean_line(line);
-        if let Some(line) = line {
-            let statement = decode_instruction(&line)?;
-            if statement != Instruction::Comment {
-                line_number += 1;
-            }
+    let instructions = decode_instructions(file_contents.as_str());
 
-            println!("Line {line_number}, instruction {statement:?}");
-        }
-    }
+    println!("Instructions: {instructions:?}");
 
     Ok(ExitCode::from(0))
 }

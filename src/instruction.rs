@@ -12,5 +12,4 @@ pub enum Instruction {
         comp: Operation,
         jump: Jump,
     },
-    Comment,
 }
