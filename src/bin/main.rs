@@ -18,9 +18,11 @@ fn main() -> Result<ExitCode> {
     let file_contents = std::fs::read_to_string(args.program)?;
     let lines = file_contents.lines();
 
-    let instructions = decode_instructions(file_contents.as_str());
+    let instructions = decode_instructions(file_contents.as_str())?;
+    let code_gen = generate_code(&instructions);
 
     println!("Instructions: {instructions:?}");
 
     Ok(ExitCode::from(0))
 }
+
