@@ -47,7 +47,7 @@ pub fn decode_instruction(line: &str) -> Result<Instruction> {
     let jump_str: Option<String> = if line.contains(';') {
         Some(
             line.chars()
-                .skip(line.chars().position(|c| c == ';').unwrap())
+                .skip(line.chars().position(|c| c == ';').unwrap() + 1)
                 .collect(),
         )
     } else {
@@ -91,11 +91,31 @@ mod tests {
             Some("1234567".to_owned())
         );
     }
-    
+
     #[test]
     fn decode_instruction_A() {
         let line = "@123";
         let r = decode_instruction(line);
         assert!(r.is_ok() && r.unwrap() == Instruction::A { value: 123 });
+
+        let line = "@xyz";
+        let r = decode_instruction(line);
+        assert!(r.is_err());
+    }
+
+    #[test]
+    fn decode_instruction_C() {
+        let line = "AM=D+A;JEQ";
+        let r = decode_instruction(line);
+
+        assert!(
+            r.is_ok()
+                && dbg!(r.unwrap())
+                    == Instruction::C {
+                        dest: HashSet::from_iter([Register::A, Register::M]),
+                        comp: Operation::DPlusA,
+                        jump: Jump::Equal
+                    }
+        )
     }
 }

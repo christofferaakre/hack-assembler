@@ -1,3 +1,5 @@
+use std::fmt::Display;
+
 use thiserror::Error;
 
 #[derive(Debug, PartialEq)]
@@ -13,8 +15,13 @@ pub enum Jump {
 }
 
 #[derive(Debug, Error)]
-#[error("JumpParseError")]
-pub struct JumpParseError;
+pub struct JumpParseError(String);
+
+impl Display for JumpParseError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "JumpParseError({})", self.0)
+    }
+}
 
 impl TryFrom<Option<String>> for Jump {
     type Error = JumpParseError;
@@ -38,7 +45,7 @@ impl TryFrom<String> for Jump {
             "JNE" => Ok(NotEqual),
             "JLE" => Ok(LessThanOrEqual),
             "JMP" => Ok(Always),
-            _ => Err(JumpParseError)
+            other => Err(JumpParseError(other.to_owned()))
         }
     }
 }
