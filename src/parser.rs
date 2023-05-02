@@ -91,4 +91,11 @@ mod tests {
             Some("1234567".to_owned())
         );
     }
+    
+    #[test]
+    fn decode_instruction_A() {
+        let line = "@123";
+        let r = decode_instruction(line);
+        assert!(r.is_ok() && r.unwrap() == Instruction::A { value: 123 });
+    }
 }
