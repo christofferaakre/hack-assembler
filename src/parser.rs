@@ -4,6 +4,15 @@ use anyhow::Result;
 
 use crate::{instruction::Instruction, jump::Jump, ops::Operation, register::Register};
 
+pub fn decode_instructions(code: &str) -> Result<Vec<Instruction>> {
+    let lines = code.lines();
+    let instructions = lines
+        .map(clean_line)
+        .filter_map(|l| l)
+        .map(|l| decode_instruction(l.as_str()));
+    instructions.collect()
+}
+
 pub fn decode_instruction(line: &str) -> Result<Instruction> {
     // Handle comments
     if line.starts_with("//") {
@@ -117,5 +126,40 @@ mod tests {
                         jump: Jump::Equal
                     }
         )
+    }
+
+    fn decode_instructions_add_asm() {
+        let s = include_str!("../examples/add/Add.asm");
+        let instructions = decode_instructions(s);
+        assert!(
+            instructions.is_ok()
+                && instructions.unwrap()
+                    == vec![
+                        Instruction::A { value: 2 },
+                        Instruction::C {
+                            dest: HashSet::from_iter([Register::D]),
+                            comp: Operation::A,
+                            jump: Jump::NoJump
+                        },
+                        Instruction::A { value: 3 },
+                        Instruction::C {
+                            dest: HashSet::from_iter([Register::D]),
+                            comp: Operation::DPlusA,
+                            jump: Jump::NoJump
+                        },
+                        Instruction::A { value: 0 },
+                        Instruction::C {
+                            dest: HashSet::from_iter([Register::M]),
+                            comp: Operation::D,
+                            jump: Jump::NoJump
+                        },
+                    ]
+        );
+    }
+
+    fn decode_instructions_bad_code() {
+        let s = "asdfasdf\nasdfasdf\nasdf";
+        let instructions = decode_instructions(s);
+        assert!(instructions.is_err());
     }
 }
