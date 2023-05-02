@@ -70,7 +70,25 @@ pub fn clean_line(line: &str) -> Option<String> {
     }
 
     // remove all whitespace
-    let cleaned_line = line.split_whitespace().collect();
+    let cleaned_line: String = line.split_whitespace().collect();
 
-    Some(cleaned_line)
+    if cleaned_line.is_empty() {
+        None
+    } else {
+        Some(cleaned_line)
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    #[test]
+    fn clean_line_works() {
+        assert_eq!(clean_line(""), None);
+        assert_eq!(clean_line("\n"), None);
+        assert_eq!(
+            clean_line("  1 2  3  4  5 6 7  "),
+            Some("1234567".to_owned())
+        );
+    }
 }

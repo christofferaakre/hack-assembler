@@ -7,7 +7,6 @@ pub enum Register {
     M,
 }
 
-
 #[derive(Debug, Error)]
 #[error("RegisterParseError")]
 pub struct RegisterParseError;
