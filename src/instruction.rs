@@ -27,8 +27,15 @@ impl Instruction {
                 // so we ignore the MOST significant bit
                 let bits = &value_bytes[0..15];
                 assert_eq!(bits.len(), 15);
-                let bit_string: String = bits.iter().map(|b| b.to_string()).collect();
-                bit_string
+
+                let chars: Vec<char> =bits.iter()
+                    .map(|b| b.as_ref().clone())
+                    .map(|b| match b {
+                        false => '0',
+                        true => '1',
+                    }).collect();
+
+                ['1'].iter().chain(chars.iter()).collect()
             }
 
             Instruction::C { dest, comp, jump } => {
@@ -79,6 +86,8 @@ impl Instruction {
                         true => '1',
                     })
                     .to_vec();
+
+                assert_eq!(chars.len(), 16);
 
                 chars.iter().collect()
             }
