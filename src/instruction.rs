@@ -1,9 +1,10 @@
 use std::collections::HashSet;
 
+use bitvec::prelude::BitArray;
 use bitvec::view::BitView;
-use bitvec::order::Lsb0;
+use bitvec::{order::Lsb0, slice::BitSlice};
 
-use crate::{ValueType, register::Register, ops::Operation, jump::Jump};
+use crate::{jump::Jump, ops::Operation, register::Register, ValueType};
 
 #[derive(Debug, PartialEq)]
 pub enum Instruction {
@@ -29,8 +30,57 @@ impl Instruction {
                 let bit_string: String = bits.iter().map(|b| b.to_string()).collect();
                 bit_string
             }
+
             Instruction::C { dest, comp, jump } => {
-                todo!()
+                // I feel like there must be a cleaner way to do this
+                let mut bits = [false; 16];
+                bits[0] = true;
+                bits[1] = true;
+                bits[2] = true;
+
+                let next_seven_bits = comp.codegen();
+                assert_eq!(next_seven_bits.len(), 7);
+
+                // sets bits 3-9
+                for (i, bit) in next_seven_bits.iter().enumerate() {
+                    bits[3 + i] = *bit;
+                }
+
+                if dest.contains(&Register::A) {
+                    bits[10] = true;
+                }
+
+                if dest.contains(&Register::D) {
+                    bits[11] = true;
+                }
+
+                if dest.contains(&Register::M) {
+                    bits[12] = true;
+                }
+
+                let last_three_bits = match jump {
+                    Jump::NoJump => [false, false, false],
+                    Jump::GreaterThan => [false, false, true],
+                    Jump::Equal => [false, true, false],
+                    Jump::GreaterThanOrEqual => [false, true, true],
+                    Jump::LessThan => [true, false, false],
+                    Jump::NotEqual => [true, false, true],
+                    Jump::LessThanOrEqual => [true, true, false],
+                    Jump::Always => [true, true, true],
+                };
+
+                bits[13] = last_three_bits[0];
+                bits[14] = last_three_bits[1];
+                bits[15] = last_three_bits[2];
+
+                let chars = bits
+                    .map(|b| match b {
+                        false => '0',
+                        true => '1',
+                    })
+                    .to_vec();
+
+                chars.iter().collect()
             }
         }
     }

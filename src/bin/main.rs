@@ -1,7 +1,7 @@
 use clap::Parser as ClapParser;
 use hack_assembler::{
     instruction::Instruction,
-    parser::{clean_line, decode_instruction, decode_instructions},
+    parser::{clean_line, decode_instruction, decode_instructions}, codegen::generate_code,
 };
 use std::{path::PathBuf, process::ExitCode};
 

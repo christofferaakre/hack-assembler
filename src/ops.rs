@@ -23,6 +23,16 @@ pub enum Operation {
     AMinusD,
     DAndA,
     DOrA,
+    M,
+    NotM,
+    MinusM,
+    MPlusOne,
+    MMinusOne,
+    DPlusM,
+    DMinusM,
+    MMinusD,
+    DAndM,
+    DOrM,
 }
 
 #[derive(Debug, Error)]
@@ -57,7 +67,64 @@ impl TryFrom<String> for Operation {
             "A-D" => Ok(DMinusA),
             "D&A" => Ok(DAndA),
             "D|A" => Ok(DOrA),
-            other => Err(OperationParseError(other.to_owned()))
+            "N" => Ok(M),
+            "!M" => Ok(NotM),
+            "-M" => Ok(MinusM),
+            "M+1" => Ok(MPlusOne),
+            "M-1" => Ok(MMinusOne),
+            "D+M" => Ok(DPlusM),
+            "D-M" => Ok(DMinusM),
+            "M-D" => Ok(MMinusD),
+            "D&M" => Ok(DAndM),
+            "D|M" => Ok(DOrM),
+            other => Err(OperationParseError(other.to_owned())),
         }
+    }
+}
+
+impl Operation {
+    // TODO: this could be a lot better, maybe a macro
+    pub fn codegen(&self) -> Vec<bool> {
+        use Operation::*;
+        let s = match self {
+            Zero => "0101010",
+            One => "0111111",
+            MinusOne => "0111010",
+            D => "0001100",
+            A => "0110000",
+            NotD => "0001101",
+            NotA => "0110001",
+            MinusD => "0001111",
+            MinusA => "0110011",
+            DPlusOne => "0011111",
+            APlusOne => "0110111",
+            DMinusOne => "0001110",
+            AMinusOne => "0110010",
+            DPlusA => "0001110",
+            DMinusA => "0010011",
+            AMinusD => "0000111",
+            DAndA => "0000000",
+            DOrA => "0010101",
+            M => "1110000",
+            NotM => "1110001",
+            MinusM => "1110011",
+            MPlusOne => "1110111",
+            MMinusOne => "1110010",
+            DPlusM => "1000010",
+            DMinusM => "1010011",
+            MMinusD => "1000111",
+            DAndM => "1000000",
+            DOrM => "1010101",
+        };
+
+        let bits: Vec<bool> = s.chars().map(|c| match c {
+            '0' => false,
+            '1' => true,
+            _ => unreachable!("There should only be 0s and 1s")
+        }).collect(); 
+
+        assert_eq!(bits.len(), 7);
+        bits
+            
     }
 }

@@ -102,6 +102,7 @@ mod tests {
     }
 
     #[test]
+    #[allow(non_snake_case)]
     fn decode_instruction_A() {
         let line = "@123";
         let r = decode_instruction(line);
@@ -113,6 +114,7 @@ mod tests {
     }
 
     #[test]
+    #[allow(non_snake_case)]
     fn decode_instruction_C() {
         let line = "AM=D+A;JEQ";
         let r = decode_instruction(line);
@@ -128,6 +130,7 @@ mod tests {
         )
     }
 
+    #[test]
     fn decode_instructions_add_asm() {
         let s = include_str!("../examples/add/Add.asm");
         let instructions = decode_instructions(s);
@@ -157,6 +160,7 @@ mod tests {
         );
     }
 
+    #[test]
     fn decode_instructions_bad_code() {
         let s = "asdfasdf\nasdfasdf\nasdf";
         let instructions = decode_instructions(s);
