@@ -100,7 +100,7 @@ impl Operation {
             APlusOne => "0110111",
             DMinusOne => "0001110",
             AMinusOne => "0110010",
-            DPlusA => "0001110",
+            DPlusA => "0000010",
             DMinusA => "0010011",
             AMinusD => "0000111",
             DAndA => "0000000",

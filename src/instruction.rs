@@ -1,6 +1,6 @@
 use std::collections::HashSet;
 
-use bitvec::prelude::BitArray;
+use bitvec::prelude::{BitArray, Msb0};
 use bitvec::view::BitView;
 use bitvec::{order::Lsb0, slice::BitSlice};
 
@@ -22,10 +22,10 @@ impl Instruction {
     pub fn codegen(&self) -> String {
         match self {
             Instruction::A { value } => {
-                let value_bytes = value.view_bits::<Lsb0>();
+                let value_bytes = value.view_bits::<Msb0>();
                 // we want to treat this u16 as a 15-bit number,
                 // so we ignore the MOST significant bit
-                let bits = &value_bytes[0..15];
+                let bits = &value_bytes[1..16];
                 assert_eq!(bits.len(), 15);
 
                 let chars: Vec<char> =bits.iter()
@@ -35,7 +35,7 @@ impl Instruction {
                         true => '1',
                     }).collect();
 
-                ['1'].iter().chain(chars.iter()).collect()
+                ['0'].iter().chain(chars.iter()).collect()
             }
 
             Instruction::C { dest, comp, jump } => {
@@ -92,5 +92,18 @@ impl Instruction {
                 chars.iter().collect()
             }
         }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    #[test]
+    fn test_codegen_a() {
+        let instruction = Instruction::A { value: 2 };
+        let codegen = instruction.codegen();
+        let expected = String::from("0000000000000010");
+
+        assert_eq!(codegen, expected);
     }
 }
