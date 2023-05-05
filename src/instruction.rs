@@ -13,7 +13,7 @@ pub enum Instruction {
     },
     C {
         dest: HashSet<Register>,
-        comp: Operation,
+        comp: Option<Operation>,
         jump: Jump,
     },
 }
@@ -45,12 +45,14 @@ impl Instruction {
                 bits[1] = true;
                 bits[2] = true;
 
+                if let Some(comp) = comp {
                 let next_seven_bits = comp.codegen();
                 assert_eq!(next_seven_bits.len(), 7);
-
                 // sets bits 3-9
                 for (i, bit) in next_seven_bits.iter().enumerate() {
                     bits[3 + i] = *bit;
+                }
+
                 }
 
                 if dest.contains(&Register::A) {

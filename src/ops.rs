@@ -44,6 +44,17 @@ impl Display for OperationParseError {
     }
 }
 
+impl TryFrom<Option<String>> for Operation {
+    type Error = OperationParseError;
+    
+    fn try_from(s: Option<String>) -> Result<Self, Self::Error> {
+        match s {
+            None => Err(OperationParseError("Can't parse operation for None".to_owned())),
+            Some(s) => s.try_into()
+        }
+    }
+}
+
 impl TryFrom<String> for Operation {
     type Error = OperationParseError;
     fn try_from(s: String) -> Result<Self, Self::Error> {
@@ -67,7 +78,7 @@ impl TryFrom<String> for Operation {
             "A-D" => Ok(DMinusA),
             "D&A" => Ok(DAndA),
             "D|A" => Ok(DOrA),
-            "N" => Ok(M),
+            "M" => Ok(M),
             "!M" => Ok(NotM),
             "-M" => Ok(MinusM),
             "M+1" => Ok(MPlusOne),
