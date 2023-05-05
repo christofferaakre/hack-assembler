@@ -1,8 +1,7 @@
 use std::collections::HashSet;
 
-use bitvec::prelude::{BitArray, Msb0};
+use bitvec::prelude::Msb0;
 use bitvec::view::BitView;
-use bitvec::{order::Lsb0, slice::BitSlice};
 
 use crate::{jump::Jump, ops::Operation, register::Register, ValueType};
 
@@ -13,7 +12,7 @@ pub enum Instruction {
     },
     C {
         dest: HashSet<Register>,
-        comp: Option<Operation>,
+        comp: Operation,
         jump: Jump,
     },
 }
@@ -28,12 +27,14 @@ impl Instruction {
                 let bits = &value_bytes[1..16];
                 assert_eq!(bits.len(), 15);
 
-                let chars: Vec<char> =bits.iter()
+                let chars: Vec<char> = bits
+                    .iter()
                     .map(|b| b.as_ref().clone())
                     .map(|b| match b {
                         false => '0',
                         true => '1',
-                    }).collect();
+                    })
+                    .collect();
 
                 ['0'].iter().chain(chars.iter()).collect()
             }
@@ -45,14 +46,11 @@ impl Instruction {
                 bits[1] = true;
                 bits[2] = true;
 
-                if let Some(comp) = comp {
                 let next_seven_bits = comp.codegen();
                 assert_eq!(next_seven_bits.len(), 7);
                 // sets bits 3-9
                 for (i, bit) in next_seven_bits.iter().enumerate() {
                     bits[3 + i] = *bit;
-                }
-
                 }
 
                 if dest.contains(&Register::A) {

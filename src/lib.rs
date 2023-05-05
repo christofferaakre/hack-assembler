@@ -12,23 +12,17 @@ mod tests {
     use crate::{codegen::generate_code, parser::decode_instructions};
 
     #[test]
-    fn test_add() {
-        let instructions = decode_instructions(include_str!("../examples/add/Add.asm")).unwrap();
-        let code = generate_code(&instructions);
+    fn test_files() {
+        const files: [&str; 4] = ["examples/add/Add.asm", "examples/max/MaxL.asm", "examples/rect/RectL.asm", "examples/pong/PongL.asm"];
+        
+        for file in files {
+            eprintln!("Testing file {file}");
+            let in_code = std::fs::read_to_string(file).expect("Failed to read .asm file");
+            let instructions = decode_instructions(&in_code).expect("Failed to decode instructions");
+            let codegen = generate_code(&instructions);
+            let expected = std::fs::read_to_string(file.replace(".asm", ".correct.hack")).expect("Failed to read .correct.hack file");
 
-        let expected = include_str!("../examples/add/Add.correct.hack");
-
-        println!("instructions: {instructions:?}");
-
-        assert_eq!(code, expected);
-    }
-
-    #[test]
-    fn test_max() {
-        let instructions = decode_instructions(include_str!("../examples/max/MaxL.asm")).unwrap();
-        let code = generate_code(&instructions);
-        let expected = include_str!("../examples/max/MaxL.hack");
-        println!("instructions: {instructions:?}");
-        assert_eq!(code, expected);
+            assert_eq!(codegen, expected);
+        }
     }
 }

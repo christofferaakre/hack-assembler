@@ -1,6 +1,6 @@
 use std::collections::HashSet;
 
-use anyhow::{Result, anyhow};
+use anyhow::Result;
 
 use crate::{instruction::Instruction, jump::Jump, ops::Operation, register::Register};
 
@@ -39,17 +39,19 @@ pub fn decode_instruction(line: &str) -> Result<Instruction> {
 
     // skip until after "="
     // then handle all chars until ";" if ; exists, otherwise until end
-    let op_str: Option<String>  = if line.contains('=') {
-    Some(line
+
+    let skip_n = if let Some(position) = line.chars().position(|c| c == '=') {
+        position + 1
+    } else { 0 };
+
+    let op_str: String  = 
+    line
         .chars()
-        .skip(line.chars().position(|c| c == '=').unwrap_or(0) + 1)
+        .skip(skip_n)
         .take_while(|c| *c != ';')
-        .collect()
-    )
-    } else {
-        None
-    };
-    let operation = Operation::try_from(op_str).ok();
+        .collect();
+
+    let operation = Operation::try_from(op_str)?;
 
     // skip until after ; if one exists
     // then handle all chars until end of line
@@ -64,10 +66,6 @@ pub fn decode_instruction(line: &str) -> Result<Instruction> {
     };
 
     let jump = Jump::try_from(jump_str)?;
-
-    if dest.is_empty() && operation.is_none() && jump == Jump::NoJump {
-        return Err(anyhow!("Syntax error"));
-    }
 
     Ok(Instruction::C {
         dest,
@@ -133,7 +131,7 @@ mod tests {
                 && dbg!(r.unwrap())
                     == Instruction::C {
                         dest: HashSet::from_iter([Register::A, Register::M]),
-                        comp: Some(Operation::DPlusA),
+                        comp: Operation::DPlusA,
                         jump: Jump::Equal
                     }
         )
@@ -150,19 +148,19 @@ mod tests {
                         Instruction::A { value: 2 },
                         Instruction::C {
                             dest: HashSet::from_iter([Register::D]),
-                            comp: Some(Operation::A),
+                            comp: Operation::A,
                             jump: Jump::NoJump
                         },
                         Instruction::A { value: 3 },
                         Instruction::C {
                             dest: HashSet::from_iter([Register::D]),
-                            comp: Some(Operation::DPlusA),
+                            comp: Operation::DPlusA,
                             jump: Jump::NoJump
                         },
                         Instruction::A { value: 0 },
                         Instruction::C {
                             dest: HashSet::from_iter([Register::M]),
-                            comp: Some(Operation::D),
+                            comp: Operation::D,
                             jump: Jump::NoJump
                         },
                     ]
